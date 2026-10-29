@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Loom Messenger - Современный мессенджер">
+    <meta name="theme-color" content="#5865F2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Loom">
+    <title>Loom Messenger</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon-512.svg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="auth-screen">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-logo">💬 Loom</h1>
+                <h2>Добро пожаловать!</h2>
+                <p>Войдите в свой аккаунт</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Имя пользователя</label>
+                    <input type="text" id="login-username" placeholder="Введите имя" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="login-password" placeholder="Введите пароль" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-large">Войти</button>
+            </form>
+            <div class="auth-footer">
+                <button id="show-register" class="btn btn-text">Нет аккаунта? Зарегистрироваться</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Screen -->
+    <div id="register-screen" class="auth-screen" style="display: none;">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-logo">💬 Loom</h1>
+                <h2>Создать аккаунт</h2>
+                <p>Заполните информацию для регистрации</p>
+            </div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="reg-email" placeholder="your@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Имя пользователя</label>
+                    <input type="text" id="reg-username" placeholder="Придумайте имя" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="reg-password" placeholder="Минимум 4 символа" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn btn-green btn-large">Создать аккаунт</button>
+            </form>
+            <div class="auth-footer">
+                <button id="show-login" class="btn btn-text">Уже есть аккаунт? Войти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="app-screen" class="app-layout" style="display: none;">
+        <!-- Chat List Panel (Mobile Full Width) -->
+        <div class="channel-list-panel mobile-full">
+            <div class="channel-header">
+                <h2 id="channel-title">💬 Loom Messenger</h2>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="chat-tabs">
+                <button class="chat-tab active" data-tab="chats">💬 Чаты</button>
+                <button class="chat-tab" data-tab="friends">👥 Друзья</button>
+            </div>
+            
+            <div class="chats-list" id="chats-list"></div>
+            <div class="friends-list-main" id="friends-list-main" style="display: none;"></div>
+            
+            <div class="user-panel">
+                <div class="user-panel-avatar" id="user-avatar" title="Нажмите для загрузки фото">U</div>
+                <div class="user-panel-info">
+                    <div class="user-panel-name" id="user-name">User</div>
+                    <div class="user-panel-status">В сети</div>
+                </div>
+                <div class="user-panel-actions">
+                    <button class="icon-btn" id="open-settings" title="Настройки">⚙️</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Panel (Hidden on mobile by default) -->
+        <div class="chat-panel mobile-hidden" id="chat-panel">
+            <div id="no-chat-selected">
+                <div class="no-chat-icon">💬</div>
+                <h2>Выберите чат</h2>
+                <p>Начните общение, выбрав чат или создав новый</p>
+            </div>
+            
+            <div id="chat-view" class="hidden">
+                <div class="chat-header">
+                    <div class="chat-header-left">
+                        <button class="icon-btn back-btn" id="back-to-chats" title="Назад">←</button>
+                        <span class="chat-header-name" id="chat-name">Чат</span>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="icon-btn" id="search-messages-btn" title="Поиск" style="display: none;">🔍</button>
+                        <div id="search-input-container" class="search-input-container hidden">
+                            <input type="text" id="search-input" placeholder="Поиск по сообщениям..." autocomplete="off">
+                            <span id="search-counter" class="search-counter">0 результатов</span>
+                            <button class="icon-btn" id="search-close" title="Закрыть" style="padding: 4px;">✕</button>
+                        </div>
+                        <button class="icon-btn" id="chat-close" title="Закрыть">✕</button>
+                    </div>
+                </div>
+                
+                <div class="messages-container" id="messages-container"></div>
+                
+                <button class="scroll-to-bottom-btn" id="scroll-to-bottom" title="Вниз">⬇️</button>
+                
+                <div class="message-input-container">
+                    <div class="message-input-wrapper">
+                        <button class="image-attach-btn" id="image-attach-btn" title="Прикрепить изображение">📎</button>
+                        <input type="file" id="image-file-input" accept="image/*" style="display: none;">
+                        <button class="emoji-btn" id="emoji-button" title="Эмодзи">😊</button>
+                        <input type="text" id="message-input" placeholder="Написать сообщение..." autocomplete="off">
+                        <button class="btn btn-primary btn-send" id="send-message">➤</button>
+                        
+                        <!-- Emoji Picker -->
+                        <div id="emoji-picker" class="emoji-picker">
+                            <div class="emoji-grid" id="emoji-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Chat Modal -->
+    <div id="create-chat-modal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Создать чат</h3>
+                <button class="modal-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Тип чата</label>
+                    <div class="chat-type-selector">
+                        <button class="chat-type-btn active" data-type="direct">
+                            <span class="chat-type-icon">💬</span>
+                            <span>Личный</span>
+                        </button>
+                        <button class="chat-type-btn" data-type="group">
+                            <span class="chat-type-icon">👥</span>
+                            <span>Групповой</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="friend-select-group">
+                    <label>Выберите друга</label>
+                    <div id="friends-select-list" class="friends-select-list"></div>
+                </div>
+                
+                <div class="form-group" id="group-select-group" style="display: none;">
+                    <label>Выберите участников</label>
+                    <div id="group-members-list" class="friends-select-list"></div>
+                </div>
+                
+                <div class="form-group" id="chat-name-group" style="display: none;">
+                    <label>Название чата</label>
+                    <input type="text" id="new-chat-name" placeholder="Введите название">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-text modal-cancel">Отмена</button>
+                <button class="btn btn-primary modal-create">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Настройки</h3>
+                <button class="modal-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-section">
+                    <div class="profile-header">
+                        <div class="profile-avatar-large" id="profile-avatar-large">U</div>
+                        <h3>Профиль</h3>
+                        <div class="profile-username" id="profile-username">@username</div>
+                    </div>
+                </div>
+                
+                <div class="avatar-upload">
+                    <div class="avatar-preview" id="settings-avatar-preview">U</div>
+                    <button class="btn btn-text" id="upload-avatar-btn">📷 Загрузить фото</button>
+                    <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
+                    <span class="avatar-hint">Максимум 5МБ</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Отображаемое имя</label>
+                    <input type="text" id="settings-name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Username (для поиска друзей)</label>
+                    <input type="text" id="settings-username">
+                    <span class="profile-hint">Изменение username сделает ваш аккаунт новым для поиска</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Цвет аватара</label>
+                    <div class="color-picker">
+                        <button class="color-btn active" data-color="#5865F2" style="background: #5865F2;"></button>
+                        <button class="color-btn" data-color="#57F287" style="background: #57F287;"></button>
+                        <button class="color-btn" data-color="#FEE75C" style="background: #FEE75C;"></button>
+                        <button class="color-btn" data-color="#EB459E" style="background: #EB459E;"></button>
+                        <button class="color-btn" data-color="#ED4245" style="background: #ED4245;"></button>
+                        <button class="color-btn" data-color="#FF7A00" style="background: #FF7A00;"></button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Тема оформления</label>
+                    <div class="theme-picker">
+                        <button class="theme-btn active" data-theme="discord">
+                            <div class="theme-preview discord-theme"></div>
+                            <span>Discord</span>
+                        </button>
+                        <button class="theme-btn" data-theme="midnight">
+                            <div class="theme-preview midnight-theme"></div>
+                            <span>Midnight</span>
+                        </button>
+                        <button class="theme-btn" data-theme="forest">
+                            <div class="theme-preview forest-theme"></div>
+                            <span>Forest</span>
+                        </button>
+                        <button class="theme-btn" data-theme="sunset">
+                            <div class="theme-preview sunset-theme"></div>
+                            <span>Sunset</span>
+                        </button>
+                        <button class="theme-btn" data-theme="rose">
+                            <div class="theme-preview rose-theme"></div>
+                            <span>Rose</span>
+                        </button>
+                        <button class="theme-btn" data-theme="cyber">
+                            <div class="theme-preview cyber-theme"></div>
+                            <span>Cyber</span>
+                        </button>
+                        <button class="theme-btn" data-theme="ocean">
+                            <div class="theme-preview ocean-theme"></div>
+                            <span>Ocean</span>
+                        </button>
+                        <button class="theme-btn" data-theme="neon">
+                            <div class="theme-preview neon-theme"></div>
+                            <span>Neon</span>
+                        </button>
+                        <button class="theme-btn" data-theme="lava">
+                            <div class="theme-preview lava-theme"></div>
+                            <span>Lava</span>
+                        </button>
+                        <button class="theme-btn" data-theme="aurora">
+                            <div class="theme-preview aurora-theme"></div>
+                            <span>Aurora</span>
+                        </button>
+                        <button class="theme-btn" data-theme="violet">
+                            <div class="theme-preview violet-theme"></div>
+                            <span>Violet</span>
+                        </button>
+                        <button class="theme-btn" data-theme="storm">
+                            <div class="theme-preview storm-theme"></div>
+                            <span>Storm</span>
+                        </button>
+                        <button class="theme-btn" data-theme="gold">
+                            <div class="theme-preview gold-theme"></div>
+                            <span>Gold</span>
+                        </button>
+                        <button class="theme-btn" data-theme="emerald">
+                            <div class="theme-preview emerald-theme"></div>
+                            <span>Emerald</span>
+                        </button>
+                        <button class="theme-btn" data-theme="coral">
+                            <div class="theme-preview coral-theme"></div>
+                            <span>Coral</span>
+                        </button>
+                        <button class="theme-btn" data-theme="midnightBlue">
+                            <div class="theme-preview midnightBlue-theme"></div>
+                            <span>Midnight Blue</span>
+                        </button>
+                        <button class="theme-btn" data-theme="sakura">
+                            <div class="theme-preview sakura-theme"></div>
+                            <span>Sakura</span>
+                        </button>
+                        <button class="theme-btn" data-theme="twilight">
+                            <div class="theme-preview twilight-theme"></div>
+                            <span>Twilight</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="friends-section">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">👥 Друзья</h3>
+                    
+                    <div class="form-group">
+                        <label>Добавить друга</label>
+                        <div class="add-friend-form">
+                            <input type="text" id="friend-username" placeholder="Имя пользователя">
+                            <button class="btn btn-primary" id="add-friend-btn">Добавить</button>
+                        </div>
+                    </div>
+
+                    <div id="friends-list" class="friends-list"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="logout-btn">Выйти</button>
+                <button class="btn btn-primary modal-save">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reaction Picker -->
+    <div id="reaction-picker" class="reaction-picker hidden">
+      <div class="reaction-picker-content">
+        <span class="reaction-option" data-emoji="👍">👍</span>
+        <span class="reaction-option" data-emoji="❤️">❤️</span>
+        <span class="reaction-option" data-emoji="😂">😂</span>
+        <span class="reaction-option" data-emoji="😮">😮</span>
+        <span class="reaction-option" data-emoji="😢">😢</span>
+        <span class="reaction-option" data-emoji="🎉">🎉</span>
+        <span class="reaction-option" data-emoji="🔥">🔥</span>
+        <span class="reaction-option" data-emoji="👎">👎</span>
+      </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="message-context-menu" class="context-menu hidden">
+      <div class="context-menu-item" data-action="edit">✏️ Редактировать</div>
+      <div class="context-menu-item" data-action="delete">🗑️ Удалить</div>
+      <div class="context-menu-item" data-action="copy">📋 Копировать</div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="image-viewer-modal" class="modal">
+      <div class="modal-overlay" id="image-viewer-overlay"></div>
+      <div class="image-viewer-content">
+        <button class="image-viewer-close" id="image-viewer-close">✕</button>
+        <img id="image-viewer-img" src="" alt="Full size image">
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notifications" class="notifications"></div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/sync.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/messages.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/web_messenger/sw.js')
+                    .then((reg) => console.log('Service Worker registered:', reg.scope))
+                    .catch((err) => console.error('SW registration failed:', err));
+            }
+            auth.init();
+        });
+    </script>
+</body>
+</html>
